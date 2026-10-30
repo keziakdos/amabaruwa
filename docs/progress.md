@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phases 4 (partielle) et 5 (import local) avancées.
+Dernière mise à jour : 2026-10-31 — Phase 4 TLS terminée, import de production en attente d'identifiants.
 
 ---
 
@@ -332,16 +332,24 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
 - Interface `/_/` en HTTP public : `404`.
 - Challenge ACME : chemin accessible (fichier absent → `404`).
 - Adresse ACME retenue : `keziakdos@gmail.com`.
-- Services existants inchangés.
+- Certificat Let's Encrypt émis le 2026-10-30, valide jusqu'au 2027-01-28
+  (émetteur `YE1`, CN `amabaruwa.rwazap.com`).
+- Vhost HTTPS activé ; HTTP redirige en `301` vers HTTPS.
+- `https://amabaruwa.rwazap.com/api/health` : `200`, certificat vérifié.
+- En-têtes Nginx/PocketBase vérifiés (HTTP/2, `nosniff`, `SAMEORIGIN`).
+- `/_/` public : `404`.
+- Écriture anonyme : `403`.
+- Challenge ACME conservé en HTTP (fichier absent → `404`, pas de redirection).
+- Superuser créé par le propriétaire via le tableau de bord (mot de passe
+  saisi hors conversation).
+- Services existants inchangés (mêmes conteneurs, mêmes ports).
 
 ### Reste à faire
 
-1. Créer le superuser sans exposer le mot de passe (tunnel SSH recommandé).
-2. Exécuter `deploy/issue-cert.sh` avec sudo (Certbot webroot).
-3. Exécuter `deploy/enable-https.sh` avec sudo.
-4. Vérifier certificat, HTTPS, headers, médias, renouvellement.
-5. Comparer l'état des autres services à l'état initial.
-6. Importer en production le pilote puis les contenus non ambigus.
+1. Vérifier le renouvellement :
+   `sudo certbot renew --dry-run --cert-name amabaruwa.rwazap.com`.
+2. Importer en production le pilote puis les contenus non ambigus.
+3. Vérifier les médias HTTPS et les requêtes Range après import.
 
 ---
 

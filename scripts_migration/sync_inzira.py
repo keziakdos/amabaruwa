@@ -790,17 +790,37 @@ def import_letter(
     }
 
 
+def read_password_file(path_value: str) -> str:
+    path = Path(path_value).expanduser()
+    try:
+        mode = path.stat().st_mode
+    except OSError as exc:
+        raise SyncError("Fichier de mot de passe illisible.") from exc
+    if mode & 0o077:
+        raise SyncError("Fichier de mot de passe trop permissif : exécuter chmod 600.")
+    try:
+        value = path.read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        raise SyncError("Fichier de mot de passe illisible.") from exc
+    if not value:
+        raise SyncError("Fichier de mot de passe vide.")
+    return value
+
+
 def load_credentials(mode: str) -> tuple[str, str]:
     email = os.environ.get("PB_ADMIN_EMAIL", "").strip()
     password = os.environ.get("PB_ADMIN_PASSWORD", "")
+    password_file = os.environ.get("PB_ADMIN_PASSWORD_FILE", "").strip()
+    if not password and password_file:
+        password = read_password_file(password_file)
     if not email and sys.stdin.isatty():
         email = input("Adresse superuser PocketBase : ").strip()
     if not password and sys.stdin.isatty():
         password = getpass.getpass("Mot de passe superuser PocketBase : ")
     if not email or not password:
         raise SyncError(
-            "Identifiants manquants. Définir PB_ADMIN_EMAIL et PB_ADMIN_PASSWORD "
-            "dans l'environnement (jamais en argument)."
+            "Identifiants manquants. Définir PB_ADMIN_EMAIL et "
+            "PB_ADMIN_PASSWORD ou PB_ADMIN_PASSWORD_FILE (fichier chmod 600)."
         )
     return email, password
 

@@ -14,7 +14,8 @@ Dépendances verrouillées : `scripts_migration/requirements.txt` (Python 3.12).
 - Téléchargements vers `.part`, vérification taille, MIME, signature et
   SHA-256, puis renommage final.
 - Aucun secret en argument ni dans les logs : identifiants PocketBase lus dans
-  `PB_ADMIN_EMAIL` et `PB_ADMIN_PASSWORD`.
+  `PB_ADMIN_EMAIL` et `PB_ADMIN_PASSWORD`, ou dans un fichier local protégé
+  (`PB_ADMIN_PASSWORD_FILE`, mode 600 exigé).
 - Les fichiers temporaires et rapports d'import sont exclus de Git.
 
 ---
@@ -33,7 +34,8 @@ python3 -m venv .venv
 .venv/bin/python sync_inzira.py dry-run
 
 # Import pilote d'une lettre dans une cible
-PB_ADMIN_EMAIL=... PB_ADMIN_PASSWORD=... \
+# (mot de passe soit en variable, soit dans un fichier chmod 600)
+PB_ADMIN_EMAIL=... PB_ADMIN_PASSWORD_FILE=~/.config/amabaruwa/pb_admin_password \
   .venv/bin/python sync_inzira.py pilot --letter 1 \
   --target http://127.0.0.1:8095
 
@@ -134,8 +136,12 @@ Prérequis :
 ```bash
 export PB_URL=https://amabaruwa.rwazap.com
 export PB_ADMIN_EMAIL='...'
+# Option 1 : mot de passe saisi sans écho
 read -r -s -p 'Mot de passe PocketBase : ' PB_ADMIN_PASSWORD; echo
 export PB_ADMIN_PASSWORD
+# Option 2 : fichier local protégé, hors dépôt
+# chmod 600 ~/.config/amabaruwa/pb_admin_password
+# export PB_ADMIN_PASSWORD_FILE=~/.config/amabaruwa/pb_admin_password
 
 cd scripts_migration
 .venv/bin/python sync_inzira.py pilot --letter 1 --target "$PB_URL"
