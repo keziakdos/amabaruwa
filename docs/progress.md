@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phase 1 (inspection en lecture seule).
+Dernière mise à jour : 2026-10-30 — Phase 1 terminée (push initial effectué).
 
 ---
 
@@ -22,15 +22,19 @@ Dernière mise à jour : 2026-10-30 — Phase 1 (inspection en lecture seule).
 
 ### Dépôt distant GitHub
 
-- Dépôt `keziakdos/amabaruwa` : **public**, **vide** (`size: 0`),
-  branche par défaut `main`, dernier `pushed_at` 2026-10-30T19:38:53Z.
+- Dépôt `keziakdos/amabaruwa` : **public**. À l'inspection initiale il était
+  **vide** (`size: 0`), branche par défaut `main`.
+- Après le commit initial, le `push` a réussi : la branche `main` distante
+  pointe sur `696e6a07d49d90026b45700121d4911b88831745`.
+  **Le droit d'écriture Git est donc confirmé par un push réel** (sans
+  force-push).
 - `git ls-remote` (HTTPS et SSH) : aucune référence retournée, cohérent avec
   un dépôt vide.
 - Authentification SSH GitHub vérifiée en lecture :
   `Hi keziakdos! You've successfully authenticated, but GitHub does not
   provide shell access.`
-- **Le droit d'écriture n'est pas prouvé par la lecture.** Il sera testé par
-  un `push` réel de la branche `main` (sans force-push).
+- La lecture ne prouve pas l'écriture ; celle-ci a été confirmée par le
+  `push` initial de la branche `main`.
 
 ### VPS
 
@@ -119,9 +123,11 @@ Le port **8095** étant libre, le binding retenu est
 `127.0.0.1:${AMABARUWA_PORT}:8090` avec `AMABARUWA_PORT=8095`.
 PocketBase écoutera sur `0.0.0.0:8090` dans le conteneur.
 
-### Commandes exécutées (lecture seule, hors création locale)
+### Commandes exécutées
 
 - `git status`, `git ls-remote`, `ssh -T git@github.com`
+- `git init -b main`, `git remote add origin`, `git commit`, `git push -u origin main`
+- `mv Prompt.md PROMPT.md`
 - `ssh trading@148.230.124.5 'id; uname -m; ...; docker ps -a; ss -ltnp; ...'`
 - `dig A/AAAA/CNAME amabaruwa.rwazap.com`
 - `curl` vers `inzirayakristu.com` et `amabaruwa.rwazap.com`
