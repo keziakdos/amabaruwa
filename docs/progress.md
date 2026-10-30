@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phase 3 terminée (backend PocketBase testé en isolé).
+Dernière mise à jour : 2026-10-30 — Phases 4 (partielle) et 5 (import local) avancées.
 
 ---
 
@@ -308,6 +308,90 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
   via `docker compose exec`.
 - Le conteneur de test local a été arrêté et retiré ; aucune ressource VPS
   n'a été créée en phase 3.
+
+## Phase 4 — Déploiement VPS (en cours)
+
+### Réalisé
+
+- Staging transféré vers `/home/trading/amabaruwa-pb-stage`.
+- Exécution par le propriétaire de `deploy/bootstrap.sh` avec sudo :
+  - création de `/opt/amabaruwa-pb` (propriétaire `trading`, mode 0750) ;
+  - création de `/var/www/amabaruwa-acme` (propriétaire `www-data`) ;
+  - installation du vhost HTTP dédié ;
+  - `nginx -t` réussi (seul avertissement préexistant `rwaresto`) ;
+  - rechargement Nginx, sans redémarrage.
+- `.env` créé sur le VPS (`COMPOSE_PROJECT_NAME=amabaruwa`,
+  `AMABARUWA_PORT=8095`, mode 0600).
+- `docker compose config` valide, projet `amabaruwa`, binding
+  `127.0.0.1:8095`.
+- Image construite avec empreinte PocketBase vérifiée (`OK`).
+- Conteneur `amabaruwa-pocketbase-1` démarré, `Up (healthy)`.
+- Santé locale `http://127.0.0.1:8095/api/health` : `200`.
+- Port 8095 lié uniquement à `127.0.0.1`.
+- Accès HTTP public `http://amabaruwa.rwazap.com/api/health` : `200`.
+- Interface `/_/` en HTTP public : `404`.
+- Challenge ACME : chemin accessible (fichier absent → `404`).
+- Adresse ACME retenue : `keziakdos@gmail.com`.
+- Services existants inchangés.
+
+### Reste à faire
+
+1. Créer le superuser sans exposer le mot de passe (tunnel SSH recommandé).
+2. Exécuter `deploy/issue-cert.sh` avec sudo (Certbot webroot).
+3. Exécuter `deploy/enable-https.sh` avec sudo.
+4. Vérifier certificat, HTTPS, headers, médias, renouvellement.
+5. Comparer l'état des autres services à l'état initial.
+6. Importer en production le pilote puis les contenus non ambigus.
+
+---
+
+## Phase 5 — Inventaire et import
+
+### Script
+
+- `scripts_migration/sync_inzira.py` : modes `inventory`, `dry-run`, `pilot`,
+  `full`, `sync`.
+- `scripts_migration/requirements.txt` : dépendances verrouillées.
+- `docs/content-import.md` : procédure complète, sécurité et résultats.
+- Identifiants PocketBase uniquement via `PB_ADMIN_EMAIL` /
+  `PB_ADMIN_PASSWORD`, jamais en argument.
+- Téléchargements `.part`, contrôle MIME, taille, signature et SHA-256.
+- HTML généré depuis le texte des PDF, sans script ni contenu actif.
+- `scripts_migration/reports/` et `tmp/` exclus de Git.
+
+### Inventaire (2026-10-30)
+
+- 9 lettres numérotées, 9 PDF importables.
+- PDF : 6,28 Mio ; audio importable : 157,63 Mio ; total 163,91 Mio.
+- Audio importable : lettres 1 et 2 uniquement.
+- Audio ambigu, ignoré : lettres 3 (7 chapitres) et 4 (8 chapitres).
+- Document d'introduction ignoré (non classé comme lettre).
+- Aucun « Mot du jour » identifié : aucune création automatique.
+
+### Tests sur base isolée locale
+
+- Import pilote lettre 1 : texte 90 083 caractères, PDF et audio vérifiés
+  (`Range` → `206`).
+- Relance pilote : `skipped`, aucun doublon.
+- Import complet : 9 lettres publiées ; audio sur 1 et 2 ; PDF sur 9.
+- Relance complète : 9 `skipped`.
+- Lecture anonyme des 9 lettres : OK ; écriture anonyme : `403`.
+- Passage en brouillon : invisible en anonyme, puis republication contrôlée.
+- Fichiers temporaires supprimés, conteneurs de test retirés.
+
+### Correction de schéma
+
+- Migration `1750000300_content_limits.js` : `contenu_html` porté à
+  200 000 caractères et `citation` à 20 000, la valeur `max: 0` étant
+  interprétée par PocketBase comme 5 000.
+
+### Reste à faire
+
+- Importer le pilote puis les contenus non ambigus dans l'instance de
+  production, après création du superuser et activation HTTPS.
+- Faire valider une éventuelle sélection éditoriale « Mot du jour ».
+
+---
 
 ### Plan des phases suivantes
 

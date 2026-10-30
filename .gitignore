@@ -62,7 +62,8 @@ venv/
 scripts_migration/.cache/
 scripts_migration/tmp/
 scripts_migration/downloads/
-scripts_migration/reports/*.local.json
+scripts_migration/reports/
+!scripts_migration/reports/.gitkeep
 *.part
 *.partial
 *.tmp
