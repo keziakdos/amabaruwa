@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phase 2 terminée (audit, design system, prototype).
+Dernière mise à jour : 2026-10-30 — Phase 3 terminée (backend PocketBase testé en isolé).
 
 ---
 
@@ -219,6 +219,95 @@ Exécutées avec Chromium headless (Playwright), viewport 390 × 844 :
 3. Correspondance audio ↔ lettres : à résoudre en phase 5.
 4. Traductions kinyarwanda de l'interface à faire relire.
 5. Attribution `inzirayakristu.com` à conserver.
+
+## Phase 3 — Backend reproductible
+
+### Version retenue
+
+- **PocketBase v0.40.6**, release officielle du 2026-10-23
+  (`https://github.com/pocketbase/pocketbase/releases/tag/v0.40.6`).
+- Archive `pocketbase_0.40.6_linux_amd64.zip`.
+- SHA-256 vérifié au build :
+  `0e1f609158ed945f809f8a02ae012aa0427129c66ebb63c1aee76f2c0309373f`.
+- Architecture VPS : `x86_64` (compatible `linux/amd64`).
+
+### Fichiers créés
+
+- `backend/Dockerfile` : Alpine 3.20.3, PocketBase épinglé, empreinte
+  vérifiée, utilisateur `pocketbase` (UID 10001), healthcheck.
+- `backend/docker-entrypoint.sh` : préparation de `/pb_data` puis `su-exec`.
+- `backend/compose.yaml` : compatibilité Compose v1/v2 (`version: "3.9"`),
+  port `127.0.0.1:${AMABARUWA_PORT:-8095}:8090`, volume `./pb_data`,
+  migrations en lecture seule, `init`, `no-new-privileges`, logs bornés.
+- `backend/.env.example` : `COMPOSE_PROJECT_NAME=amabaruwa`,
+  `AMABARUWA_PORT=8095`.
+- `backend/.dockerignore` : exclut données, `.env`, logs.
+- `backend/pb_migrations/` :
+  - `1750000000_create_lettres.js`,
+  - `1750000100_create_mots_du_jour.js`,
+  - `1750000200_initial_settings.js`.
+- `backend/nginx/amabaruwa.rwazap.com.conf` : vhost HTTP/HTTPS dédié,
+  challenge ACME webroot, `client_max_body_size 200M`, blocage public de
+  `/_/`, proxy Range, SSE optionnel.
+- `backend/README.md` : version, exploitation, migrations, superuser.
+
+### Collections et règles
+
+`lettres` :
+
+- champs conformes à `AGENTS.md` : numéro entier positif, slug, langue,
+  titre, HTML, statut (`brouillon`/`publie`), PDF 50 MiB, audio MP3 100 MiB,
+  URL d'origine, `source_key`, date source, tailles, SHA-256, durée audio ;
+- index uniques `source_key` et `(numero, langue)` ; index statut et slug ;
+- lecture anonyme : `statut = "publie"` ;
+- écriture anonyme : interdite (`create/update/delete = null`) ;
+- fichiers `protected: true`.
+
+`mots_du_jour` :
+
+- `date_locale` (format `YYYY-MM-DD`), langue, titre, citation,
+  `reference_source`, relation optionnelle `lettre_liee`, audio extrait,
+  statut, `source_key` ;
+- index uniques `source_key` et `(date_locale, langue)` ;
+- lecture anonyme :
+  `statut = "publie" && (lettre_liee = "" || lettre_liee.statut = "publie")` ;
+- fichiers `protected: true`.
+
+Réglages : nom `Amabaruwa`, URL `https://amabaruwa.rwazap.com`, logs 14 jours,
+IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
+
+### Tests exécutés sur base isolée (jamais la production)
+
+1. Build de l'image : **succès**, empreinte SHA-256 validée (`OK`).
+2. Démarrage Compose projet `amabaruwa-test`, port `18096` : conteneur
+   `Up (healthy)`.
+3. Migrations appliquées sur base neuve : collections `lettres` et
+   `mots_du_jour` présentes avec les règles attendues.
+4. `/api/health` : `200`.
+5. Lecture anonyme : seule la lettre publiée apparaît ; le brouillon est
+   masqué.
+6. Écriture anonyme : `403` sur `lettres` et `mots_du_jour`.
+7. Fichiers : PDF publié accessible (`200`) sans jeton ; PDF de brouillon
+   inaccessible (`404`) même avec URL directe et jeton aléatoire.
+8. Brouillon : API record `404` en anonyme.
+9. Relation : mot du jour lié à une lettre brouillon masqué ; mot du jour
+   lié à une lettre publiée visible.
+10. Unicité : `source_key` dupliquée → `400` ; `(numero, langue)` dupliqué
+    → `400`.
+11. Persistance : `down` puis `up` du projet de test, enregistrements
+    conservés.
+12. Vhost Nginx testé avec un certificat auto-signé temporaire :
+    `nginx: configuration file ... test is successful`.
+
+### Notes d'exploitation
+
+- `COMPOSE_PROJECT_NAME=amabaruwa` dans `.env` garantit le nom de projet.
+- PocketBase démarre avec `--automigrate=0` ; les migrations sont montées en
+  lecture seule.
+- La commande superuser doit inclure `--dir=/pb_data` lorsqu'elle est lancée
+  via `docker compose exec`.
+- Le conteneur de test local a été arrêté et retiré ; aucune ressource VPS
+  n'a été créée en phase 3.
 
 ### Plan des phases suivantes
 

@@ -1,0 +1,7 @@
+pb_data/
+backups/
+.env
+*.log
+Dockerfile
+compose.yaml
+.dockerignore

@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  pocketbase:
+    build:
+      context: .
+      args:
+        PB_VERSION: "0.40.6"
+        PB_SHA256: "0e1f609158ed945f809f8a02ae012aa0427129c66ebb63c1aee76f2c0309373f"
+    image: amabaruwa-pocketbase:0.40.6
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    ports:
+      - "127.0.0.1:${AMABARUWA_PORT:-8095}:8090"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_migrations:/pb_migrations:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
