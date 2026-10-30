@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-31 — Phase 4 TLS terminée, import de production en attente d'identifiants.
+Dernière mise à jour : 2026-10-31 — Import de production terminé et vérifié.
 
 ---
 
@@ -344,12 +344,17 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
   saisi hors conversation).
 - Services existants inchangés (mêmes conteneurs, mêmes ports).
 
+### Vérifications TLS complémentaires
+
+- Timers Certbot présents : `certbot.timer` et `snap.certbot.renew.timer`.
+- Test de renouvellement à exécuter par le propriétaire :
+  `sudo certbot renew --dry-run --cert-name amabaruwa.rwazap.com`.
+- Hook de rechargement limité au certificat Amabaruwa.
+
 ### Reste à faire
 
-1. Vérifier le renouvellement :
-   `sudo certbot renew --dry-run --cert-name amabaruwa.rwazap.com`.
-2. Importer en production le pilote puis les contenus non ambigus.
-3. Vérifier les médias HTTPS et les requêtes Range après import.
+- Sauvegarde/restauration isolée (phase 7/13).
+- Tests physiques Android.
 
 ---
 
@@ -393,11 +398,25 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
   200 000 caractères et `citation` à 20 000, la valeur `max: 0` étant
   interprétée par PocketBase comme 5 000.
 
+### Import de production (2026-10-31)
+
+- Pilote lettre 1 importé : `urzu24wa9ytfk0c`, texte 90 083 caractères,
+  PDF 761 151 octets, audio 7 738,75 s.
+- Import complet : 8 lettres supplémentaires importées, lettre 1 ignorée
+  (déjà présente), 0 échec.
+- Relance `sync` : **9 ignorées**, aucun doublon.
+- État final : 9 lettres publiées ; PDF sur les 9 ; audio sur 1 et 2 ;
+  audio absent sur 3 et 4 (ambiguïté non contournée).
+- Lecture anonyme : 9 lettres ; écriture anonyme : `403`.
+- Médias HTTPS : requêtes `Range` sur PDF et audio → `206`.
+- `mots_du_jour` : 0 enregistrement ; aucune citation inventée.
+- Fichier de mot de passe local : `~/.config/amabaruwa/pb_admin_password`
+  (mode 600, hors dépôt). À supprimer après les imports si non nécessaire.
+
 ### Reste à faire
 
-- Importer le pilote puis les contenus non ambigus dans l'instance de
-  production, après création du superuser et activation HTTPS.
 - Faire valider une éventuelle sélection éditoriale « Mot du jour ».
+- Réimporter les audios 3 et 4 après validation d'une source non ambiguë.
 
 ---
 

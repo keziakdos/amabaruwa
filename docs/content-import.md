@@ -120,7 +120,13 @@ mise en page PDF sont normalisés.
    contrôlée.
 9. Volume : 9 PDF + 2 MP3 importés, fichiers vérifiés.
 
-Aucun test n'a été exécuté sur la production.
+### Import de production (2026-10-31)
+
+- Pilote lettre 1 : importé, texte et fichiers vérifiés.
+- Import complet : 9 lettres publiées, audio sur 1 et 2.
+- Relance `sync` : 9 ignorées, aucun doublon.
+- Médias HTTPS : `Range` PDF/audio → `206`.
+- `mots_du_jour` : vide, aucune création automatique.
 
 ---
 
