@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amabaruwa — prototype (données fictives)</title>
+<style>
+  @font-face { font-family: 'Lato'; src: url('../../assets/fonts/Lato-Light.ttf') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Lato'; src: url('../../assets/fonts/Lato-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Lato'; src: url('../../assets/fonts/Lato-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Lato'; src: url('../../assets/fonts/Lato-Black.ttf') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+
+  :root {
+    --sun: #FFC52E;
+    --gold: #FFB21F;
+    --glow: #FFE66D;
+    --white: #FFFFFF;
+    --mist: #F4F4F4;
+    --night: #25364A;
+    --muted: #667085;
+    --disabled: #9B9B9B;
+    --line: #E7E9EE;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 2px 8px rgba(37, 54, 74, .08);
+    --shadow-up: 0 -4px 16px rgba(37, 54, 74, .08);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: 'Lato', system-ui, sans-serif;
+    color: var(--night);
+    background:
+      radial-gradient(1200px 500px at 15% -10%, #FFE9A8 0%, transparent 60%),
+      radial-gradient(900px 500px at 95% 0%, #FFD46A 0%, transparent 55%),
+      #F7F4EC;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .prototype-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .prototype-title { font-size: 14px; font-weight: 700; letter-spacing: .02em; }
+  .prototype-title span { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+  .demo-note {
+    font-size: 12px; color: #6b4d00; background: #FFF3C9;
+    border: 1px solid #F3D27A; padding: 6px 10px; border-radius: 999px;
+  }
+  .screen-switch { display: flex; gap: 6px; flex-wrap: wrap; }
+  .screen-switch button {
+    font-family: inherit; font-size: 12px; font-weight: 700; color: var(--night);
+    background: rgba(255,255,255,.7); border: 1px solid rgba(37,54,74,.12);
+    padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    transition: all .2s ease;
+  }
+  .screen-switch button:hover { background: #fff; transform: translateY(-1px); }
+  .screen-switch button[aria-pressed="true"] { background: var(--night); color: #fff; border-color: var(--night); }
+
+  .stage {
+    display: flex; justify-content: center; padding: 20px 16px 40px;
+  }
+  .phone {
+    width: 390px; height: 844px; max-width: 100%;
+    background: var(--white);
+    border-radius: 34px;
+    box-shadow: 0 30px 70px rgba(37, 54, 74, .22), 0 0 0 8px rgba(37,54,74,.06);
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+
+  .app-header {
+    background: linear-gradient(135deg, var(--sun) 0%, var(--gold) 100%);
+    padding: 16px 20px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex: none;
+  }
+  .app-header h1 { margin: 0; font-size: 21px; font-weight: 900; letter-spacing: -.01em; }
+  .app-header p { margin: 2px 0 0; font-size: 11px; font-weight: 700; color: #5a4300; letter-spacing: .06em; text-transform: uppercase; }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.55); color: var(--night);
+    display: grid; place-items: center; transition: all .2s ease;
+  }
+  .icon-btn:hover { background: #fff; transform: rotate(8deg); }
+  .icon-btn:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 3px solid var(--night); outline-offset: 2px;
+  }
+
+  .content {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 18px 20px 28px;
+    scrollbar-width: thin;
+  }
+  .screen { display: none; animation: rise .22s ease; }
+  .screen.active { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .hero {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); background: var(--sun);
+  }
+  .hero img { display: block; width: 100%; height: 168px; object-fit: cover; }
+  .hero-copy {
+    position: absolute; inset: auto 0 0 0;
+    padding: 34px 16px 14px;
+    background: linear-gradient(to top, rgba(255,255,255,.99) 18%, rgba(255,255,255,.86) 52%, rgba(255,255,255,.25) 100%);
+  }
+  .hero-copy strong { display: block; font-size: 17px; font-weight: 900; letter-spacing: .01em; }
+  .hero-copy em { display: block; font-style: normal; font-size: 13px; color: #5a4300; font-weight: 700; }
+  .hero-copy span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 22px 0 10px; }
+  .section-head h2 { margin: 0; font-size: 17px; font-weight: 900; }
+  .section-head a, .link-btn {
+    font-family: inherit; font-size: 12px; font-weight: 700; color: #8a5b00;
+    background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: none;
+  }
+  .section-head a:hover, .link-btn:hover { text-decoration: underline; }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow);
+  }
+  .daily {
+    border-left: 5px solid var(--sun);
+    background: linear-gradient(180deg, #fff 0%, #FFFDF6 100%);
+  }
+  .eyebrow {
+    font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+    color: #8a5b00; margin: 0 0 8px;
+  }
+  .quote { margin: 0; font-size: 18px; line-height: 1.55; }
+  .quote-ref { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+  .demo-tag {
+    display: inline-block; font-size: 10px; font-weight: 900; letter-spacing: .04em;
+    color: #6b4d00; background: #FFF3C9; border: 1px solid #F3D27A;
+    border-radius: 999px; padding: 2px 8px; vertical-align: middle; margin-left: 6px;
+  }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .row.end { justify-content: flex-end; }
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 14px; height: 44px; padding: 0 16px;
+    border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--sun); color: var(--night); box-shadow: 0 2px 0 #E0A400; }
+  .btn-primary:hover { background: var(--glow); }
+  .btn-secondary { background: #fff; color: var(--night); border-color: rgba(37,54,74,.24); }
+  .btn-secondary:hover { border-color: var(--night); background: var(--mist); }
+  .btn-ghost { background: transparent; color: var(--night); }
+  .btn-ghost:hover { background: var(--mist); }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .btn svg { width: 18px; height: 18px; }
+
+  .continue-card { display: flex; gap: 14px; align-items: center; }
+  .thumb {
+    width: 56px; height: 72px; border-radius: 10px; flex: none;
+    background: linear-gradient(160deg, var(--sun), var(--gold));
+    display: grid; place-items: center; font-weight: 900; font-size: 20px; color: var(--night);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.5);
+  }
+  .continue-card h3 { margin: 0 0 3px; font-size: 15px; font-weight: 900; }
+  .continue-card p { margin: 0; font-size: 12px; color: var(--muted); }
+  .progress { height: 5px; border-radius: 999px; background: var(--mist); overflow: hidden; margin-top: 10px; }
+  .progress > i { display: block; height: 100%; border-radius: inherit; background: var(--gold); width: 0; transition: width .3s ease; }
+
+  .search-box { position: relative; }
+  .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); }
+  .search-box input {
+    width: 100%; height: 48px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--mist); color: var(--night);
+    font-family: inherit; font-size: 15px; padding: 0 14px 0 42px;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-box input:focus { background: #fff; border-color: var(--gold); }
+
+  .chips { display: flex; gap: 8px; margin: 12px 0 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--night);
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 13px; cursor: pointer; transition: all .2s ease;
+  }
+  .chip:hover { border-color: var(--gold); }
+  .chip[aria-pressed="true"] { background: var(--night); border-color: var(--night); color: #fff; }
+
+  .letter-list { display: grid; gap: 10px; margin-top: 10px; }
+  .letter {
+    display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 13px 14px; cursor: pointer; font-family: inherit; color: var(--night);
+    transition: all .2s ease;
+  }
+  .letter:hover { border-color: var(--gold); box-shadow: var(--shadow); transform: translateY(-1px); }
+  .num {
+    width: 42px; height: 42px; border-radius: 12px; flex: none;
+    background: linear-gradient(150deg, var(--sun), var(--gold));
+    display: grid; place-items: center; font-weight: 900; font-size: 16px;
+  }
+  .letter-main { flex: 1; min-width: 0; }
+  .letter-main h3 { margin: 0 0 3px; font-size: 14px; font-weight: 900; }
+  .letter-main p { margin: 0; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { display: flex; gap: 8px; margin-top: 7px; align-items: center; }
+  .pill {
+    font-size: 10px; font-weight: 700; border-radius: 999px; padding: 2px 7px;
+    background: var(--mist); color: var(--muted);
+  }
+  .pill.off { background: #FFF3C9; color: #6b4d00; }
+  .fav { background: none; border: 0; padding: 6px; cursor: pointer; color: var(--disabled); border-radius: 50%; line-height: 0; }
+  .fav:hover { background: var(--mist); color: #B07800; }
+  .fav[aria-pressed="true"] { color: #B07800; }
+
+  .empty { text-align: center; padding: 30px 12px; color: var(--muted); font-size: 14px; }
+
+  .reader-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .back { background: none; border: 0; font-family: inherit; font-weight: 700; font-size: 13px; color: var(--night); cursor: pointer; padding: 8px 0; }
+  .font-controls { display: flex; align-items: center; gap: 4px; background: var(--mist); border-radius: 999px; padding: 3px; }
+  .font-controls button {
+    width: 34px; height: 34px; border-radius: 50%; border: 0; background: #fff;
+    font-family: inherit; font-weight: 900; cursor: pointer; color: var(--night);
+  }
+  .font-controls button:hover { background: var(--glow); }
+  .reader h2 { font-size: 26px; line-height: 1.3; margin: 4px 0 4px; font-weight: 400; }
+  .reader .sub { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+  .reading-progress { height: 4px; background: var(--mist); border-radius: 999px; margin-bottom: 18px; overflow: hidden; }
+  .reading-progress > i { display: block; height: 100%; width: 38%; background: var(--sun); }
+  .reading-body { font-size: 18px; line-height: 1.7; }
+  .reading-body p { margin: 0 0 16px; }
+  .reading-body h3 { font-size: 18px; margin: 22px 0 10px; }
+  .note {
+    background: var(--mist); border-left: 4px solid var(--gold); border-radius: 8px;
+    padding: 12px 14px; font-size: 13px; color: var(--muted); margin: 18px 0;
+  }
+  .source { font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; margin-top: 20px; }
+  .source a { color: #8a5b00; }
+  .sticky-actions {
+    position: sticky; bottom: -28px; margin: 18px -20px -28px; padding: 12px 20px 22px;
+    background: linear-gradient(to top, #fff 76%, rgba(255,255,255,0));
+    display: flex; gap: 8px;
+  }
+  .sticky-actions .btn { flex: 1; }
+
+  .art {
+    border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--shadow);
+    background: var(--sun);
+  }
+  .art img { width: 100%; height: 186px; object-fit: cover; display: block; }
+  .art-label {
+    position: absolute; left: 14px; bottom: 12px; right: 14px;
+    background: rgba(255,255,255,.92); border-radius: 10px; padding: 9px 12px;
+  }
+  .art-label strong { display: block; font-size: 14px; }
+  .art-label span { font-size: 11px; color: var(--muted); }
+  .audio-title { text-align: center; margin: 20px 0 4px; font-size: 19px; font-weight: 900; }
+  .audio-sub { text-align: center; margin: 0 0 18px; color: var(--muted); font-size: 12px; }
+  .seek { height: 6px; border-radius: 999px; background: var(--mist); position: relative; cursor: pointer; }
+  .seek > i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--gold); }
+  .times { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 7px; }
+  .player-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 20px 0 8px; }
+  .round {
+    width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line);
+    background: #fff; cursor: pointer; display: grid; place-items: center; color: var(--night);
+    transition: all .2s ease;
+  }
+  .round:hover { background: var(--mist); }
+  .round.play { width: 64px; height: 64px; background: var(--sun); border-color: var(--sun); box-shadow: 0 4px 0 #E0A400; }
+  .round.play:hover { background: var(--glow); }
+  .round svg { width: 20px; height: 20px; }
+  .round.play svg { width: 26px; height: 26px; }
+  .player-options { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .option {
+    font-family: inherit; font-size: 12px; font-weight: 700; color: var(--night);
+    border: 1px solid var(--line); background: #fff; border-radius: 999px;
+    padding: 8px 13px; cursor: pointer;
+  }
+  .option:hover { border-color: var(--gold); }
+  .option[aria-pressed="true"] { background: var(--night); color: #fff; border-color: var(--night); }
+
+  .storage { display: flex; align-items: center; gap: 14px; }
+  .donut {
+    --p: 62;
+    width: 58px; height: 58px; border-radius: 50%; flex: none;
+    background: conic-gradient(var(--gold) calc(var(--p) * 1%), var(--mist) 0);
+    display: grid; place-items: center;
+  }
+  .donut::after { content: ''; width: 42px; height: 42px; border-radius: 50%; background: #fff; }
+  .storage h3 { margin: 0 0 2px; font-size: 14px; font-weight: 900; }
+  .storage p { margin: 0; font-size: 12px; color: var(--muted); }
+  .dl-item { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+  .dl-icon {
+    width: 42px; height: 42px; border-radius: 12px; flex: none; display: grid; place-items: center;
+    background: var(--mist); color: var(--night); font-size: 10px; font-weight: 900;
+  }
+  .dl-main { flex: 1; min-width: 0; }
+  .dl-main h3 { margin: 0 0 2px; font-size: 13px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dl-main p { margin: 0; font-size: 11px; color: var(--muted); }
+  .status-ok { color: #1E7A46; }
+  .status-err { color: #B42318; }
+
+  .mini-player {
+    flex: none; display: none; align-items: center; gap: 10px;
+    padding: 9px 14px; background: #fff; border-top: 1px solid var(--line);
+    box-shadow: var(--shadow-up); cursor: pointer;
+  }
+  .mini-player.show { display: flex; }
+  .mini-art { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(150deg, var(--sun), var(--gold)); flex: none; }
+  .mini-main { flex: 1; min-width: 0; }
+  .mini-main strong { display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-main span { font-size: 10px; color: var(--muted); }
+  .mini-progress { height: 3px; background: var(--mist); border-radius: 999px; margin-top: 4px; overflow: hidden; }
+  .mini-progress > i { display: block; height: 100%; width: 0; background: var(--sun); }
+
+  .bottom-nav {
+    flex: none; display: grid; grid-template-columns: repeat(3, 1fr);
+    background: #fff; border-top: 1px solid var(--line); padding: 6px 8px 12px;
+  }
+  .nav-item {
+    border: 0; background: none; font-family: inherit; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 7px 4px; border-radius: 12px; color: var(--muted);
+    font-size: 10px; font-weight: 700; transition: all .2s ease;
+  }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item:hover { background: var(--mist); color: var(--night); }
+  .nav-item[aria-current="page"] { color: var(--night); }
+  .nav-item[aria-current="page"] svg { color: #B07800; }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 92px; transform: translate(-50%, 12px);
+    background: var(--night); color: #fff; font-size: 12px; font-weight: 700;
+    padding: 10px 14px; border-radius: 999px; opacity: 0; pointer-events: none;
+    transition: all .25s ease; max-width: 86%; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 520px) {
+    .prototype-bar { padding: 14px 14px 0; }
+    .stage { padding: 14px 0 0; }
+    .phone { width: 100%; height: calc(100vh - 110px); min-height: 640px; border-radius: 0; box-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="prototype-bar">
+  <div class="prototype-title">Amabaruwa — prototype de direction visuelle
+    <span>Lato · palette solaire · écrans mobiles</span>
+  </div>
+  <div class="demo-note">Données fictives — aucune citation religieuse inventée</div>
+  <nav class="screen-switch" aria-label="Navigation du prototype">
+    <button type="button" data-goto="home" aria-pressed="true">Accueil</button>
+    <button type="button" data-goto="library" aria-pressed="false">Bibliothèque</button>
+    <button type="button" data-goto="reader" aria-pressed="false">Lecture</button>
+    <button type="button" data-goto="audio" aria-pressed="false">Audio</button>
+    <button type="button" data-goto="downloads" aria-pressed="false">Téléchargements</button>
+  </nav>
+</header>
+
+<main class="stage">
+  <div class="phone">
+    <header class="app-header">
+      <div>
+        <h1>Amabaruwa</h1>
+        <p>Inzira ya Kristu</p>
+      </div>
+      <button class="icon-btn" type="button" id="settings" aria-label="Igenamiterere">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="content" id="content">
+
+      <section class="screen active" id="screen-home" aria-label="Aha mba">
+        <div class="hero">
+          <img src="../../assets/images/brand/kristu-aragarutse-banner.jpg" alt="Ifoto y’umutwe ya Kristu Aragarutse — inkomoko: inzirayakristu.com">
+          <div class="hero-copy">
+            <strong>KRISTU ARAGARUTSE</strong>
+            <em>Arivugira ukuri kwe.</em>
+            <span>AMABARUWA YA KRISTU</span>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Ijambo ry’uyu munsi <span class="demo-tag">URUGERO GUSA</span></h2>
+          <button class="link-btn" type="button" data-toast="Aya ni amakuru y’urugero gusa.">Reba byose</button>
+        </div>
+
+        <article class="card daily">
+          <p class="eyebrow">Ijambo ry’uyu munsi</p>
+          <p class="quote">« Uru ni urugero rw’amagambo yo mu porogaramu. Ntabwo ari inyigisho nyayo. »</p>
+          <p class="quote-ref">Urugero gusa · ntabwo ari isomo</p>
+          <div class="row end" style="margin-top:12px">
+            <button class="btn btn-secondary" type="button" data-toast="Gusangiza birategurwa.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>
+              Sangiza
+            </button>
+            <button class="btn btn-primary" type="button" data-toast="Nta jwi nyakuri ry’uyu urugero rihari.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg>
+              Umva
+            </button>
+          </div>
+        </article>
+
+        <div class="section-head"><h2>Komeza usome</h2></div>
+        <div class="card continue-card" role="button" tabindex="0" data-goto="reader">
+          <div class="thumb" aria-hidden="true">1</div>
+          <div style="flex:1;min-width:0">
+            <h3>Urugero rwa Ibaruwa ya 1 <span class="demo-tag">URUGERO</span></h3>
+            <p>Wageze kuri 38 % · umwanya wa nyuma wabitswe</p>
+            <div class="progress"><i style="width:38%"></i></div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Isomero</h2>
+          <button class="link-btn" type="button" data-goto="library">Fungura</button>
+        </div>
+        <div class="letter-list" id="home-list"></div>
+      </section>
+
+      <section class="screen" id="screen-library" aria-label="Amabaruwa">
+        <div class="section-head" style="margin-top:0">
+          <h2>Amabaruwa</h2>
+          <span style="font-size:12px;color:var(--muted)">9 zose</span>
+        </div>
+
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+          <input id="search" type="search" placeholder="Shakisha ku izina cyangwa nimero" aria-label="Shakisha mu mabaruwa">
+        </div>
+
+        <div class="chips" role="group" aria-label="Muyunguruzi">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">Zose</button>
+          <button class="chip" type="button" data-filter="fav" aria-pressed="false">Ibikunzwe</button>
+          <button class="chip" type="button" data-filter="audio" aria-pressed="false">Bifite amajwi</button>
+          <button class="chip" type="button" data-filter="offline" aria-pressed="false">Bihari nta murandasi</button>
+        </div>
+
+        <div class="letter-list" id="library-list"></div>
+        <div class="empty" id="library-empty" hidden>Nta baruwa ihuye n’ishakisha.</div>
+      </section>
+
+      <section class="screen reader" id="screen-reader" aria-label="Gusoma ibaruwa">
+        <div class="reader-top">
+          <button class="back" type="button" data-goto="library">← Amabaruwa</button>
+          <div class="font-controls" aria-label="Ingano y’inyandiko">
+            <button type="button" id="font-minus" aria-label="Gabanura inyandiko">A−</button>
+            <button type="button" id="font-plus" aria-label="Ongera inyandiko">A+</button>
+          </div>
+        </div>
+
+        <p class="eyebrow">Urugero <span class="demo-tag">URUGERO GUSA</span></p>
+        <h2>Urugero rwa Ibaruwa ya 1</h2>
+        <p class="sub">Iki ni icyitegererezo cya porogaramu, ntabwo ari inyandiko nyayo.</p>
+        <div class="reading-progress" aria-hidden="true"><i></i></div>
+
+        <div class="reading-body" id="reading-body">
+          <p>Aya ni amagambo y’urugero akoreshwa mu kwerekana uko inyandiko izasomwa kuri telefoni. Interligne ni yagutse, ingano y’inyandiko irashobora guhindurwa, kandi umurongo ugarukira aho wasigiye.</p>
+          <p>Iki cyitegererezo ntabwo gikoresha amagambo y’inyigisho nyayo. Mu porogaramu nyakuri, inyandiko izava ku rubuga rwemewe nta guhindura inyandiko, paragrafu cyangwa ibimenyetso byayo.</p>
+          <h3>Icyiciro cy’urugero</h3>
+          <p>Urugero rw’icyiciro kigaragaza uko umutwe muto, paragrafu ndende n’umwanya wo guhumeka bihura. Imipaka y’umurongo ntabwo ijya kure kugira ngo ijisho ridahagarara.</p>
+          <div class="note">Iyi ni nota y’urugero: nta nyigisho, nta cite, nta reference y’ukuri ikoreshwa muri iki cyitegererezo.</div>
+          <p>Hasi y’inyandiko, ibikoresho bigaragaza PDF, amajwi n’ibikururwa. Ibyo bikoresho ntibigaragara nk’ibihari iyo umurandasi udahari.</p>
+        </div>
+
+        <p class="source">Inkomoko y’urugero: <a href="https://www.inzirayakristu.com" target="_blank" rel="noopener noreferrer">inzirayakristu.com</a> · attribution conservée</p>
+
+        <div class="sticky-actions">
+          <button class="btn btn-secondary" type="button" data-goto="audio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg>
+            Amajwi
+          </button>
+          <button class="btn btn-primary" type="button" data-toast="PDF y’urugero ntiboneka muri iki cyitegererezo.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Kurura PDF
+          </button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-audio" aria-label="Umva ibaruwa">
+        <div class="reader-top">
+          <button class="back" type="button" data-goto="reader">← Gusoma</button>
+          <span class="demo-tag">URUGERO</span>
+        </div>
+
+        <div class="art">
+          <img src="../../assets/images/brand/kristu-aragarutse-banner.jpg" alt="">
+          <div class="art-label">
+            <strong>Urugero rw’amajwi ya Ibaruwa ya 1</strong>
+            <span>Umwanditsi · urugero gusa</span>
+          </div>
+        </div>
+
+        <h2 class="audio-title">Urugero rw’amajwi</h2>
+        <p class="audio-sub">Icyiciro cya 1 · nta jwi nyakuri muri iki cyitegererezo</p>
+
+        <div class="seek" id="seek" role="slider" aria-label="Aho amajwi ageze" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><i id="seek-fill"></i></div>
+        <div class="times"><span id="time-current">0:00</span><span id="time-total">12:00</span></div>
+
+        <div class="player-controls">
+          <button class="round" type="button" data-seek="-15" aria-label="Subiza amasegonda 15">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2.3 6.7"/><path d="M4 4v6h6"/><text x="12" y="15.5" text-anchor="middle" font-size="6" fill="currentColor" stroke="none">15</text></svg>
+          </button>
+          <button class="round play" type="button" id="play" aria-label="Tangiza amajwi">
+            <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+          </button>
+          <button class="round" type="button" data-seek="15" aria-label="Jugunya amasegonda 15">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2.3 6.7"/><path d="M20 4v6h-6"/><text x="12" y="15.5" text-anchor="middle" font-size="6" fill="currentColor" stroke="none">15</text></svg>
+          </button>
+        </div>
+
+        <div class="player-options">
+          <button class="option" type="button" id="speed" aria-pressed="false">1,0×</button>
+          <button class="option" type="button" id="sleep" aria-pressed="false">Guhagarika: 15 min</button>
+          <button class="option" type="button" data-toast="Gusangiza birategurwa.">Sangiza</button>
+        </div>
+
+        <div class="note" style="margin-top:20px">
+          Muri porogaramu nyakuri, amajwi azava ku files zemejwe (streaming cyangwa fichier yabitswe), hamwe n’igenzura ry’ubunini n’ubwuzuzanye. Muri iki cyitegererezo, nta jwi rikoreshwa.
+        </div>
+      </section>
+
+      <section class="screen" id="screen-downloads" aria-label="Ibikururwa">
+        <div class="section-head" style="margin-top:0">
+          <h2>Ibikururwa</h2>
+          <button class="link-btn" type="button" data-toast="Gusukura byose birasaba kwemezwa.">Gusukura</button>
+        </div>
+
+        <div class="card storage">
+          <div class="donut" aria-hidden="true" style="--p:62"></div>
+          <div>
+            <h3>Ahari mu telefoni</h3>
+            <p>62 % byakoreshejwe · ingano y’urugero</p>
+            <p style="margin-top:4px;color:#8a5b00;font-weight:700">Nta fichier nyakuri muri iki cyitegererezo</p>
+          </div>
+        </div>
+
+        <div class="section-head"><h2>Dosiyе z’urugero</h2></div>
+
+        <div class="card">
+          <div class="dl-item">
+            <div class="dl-icon">PDF</div>
+            <div class="dl-main">
+              <h3>Urugero rwa PDF ya Ibaruwa ya 1</h3>
+              <p class="status-ok">Byarangiye · 742 Ko</p>
+            </div>
+            <button class="icon-btn" type="button" style="width:38px;height:38px;background:var(--mist)" aria-label="Siba PDF" data-toast="Gusiba birasaba kwemezwa.">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="dl-item">
+            <div class="dl-icon">MP3</div>
+            <div class="dl-main">
+              <h3>Urugero rw’amajwi · icyiciro 1</h3>
+              <p>Biracyakururwa · 46 %</p>
+              <div class="progress" style="margin-top:7px"><i style="width:46%"></i></div>
+            </div>
+            <button class="icon-btn" type="button" style="width:38px;height:38px;background:var(--mist)" aria-label="Hagarika gukurura" data-toast="Guhagarika gukurura.">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="dl-item">
+            <div class="dl-icon">MP3</div>
+            <div class="dl-main">
+              <h3>Urugero rw’amajwi · icyiciro 2</h3>
+              <p class="status-err">Byanze · umurandasi ntiboneka</p>
+            </div>
+            <button class="btn btn-secondary" type="button" style="height:38px;padding:0 12px;font-size:12px" data-toast="Ongera ugerageze.">Ongera</button>
+          </div>
+        </div>
+
+        <div class="note">Ingano y’urugero ntabwo ari iy’ukuri. Muri porogaramu, dosiye zishyirwa mu `.part` hanyuma zemerwa mbere y’izina rya nyuma.</div>
+      </section>
+
+    </div>
+
+    <div class="mini-player" id="mini" role="button" tabindex="0" aria-label="Fungura umva amajwi">
+      <div class="mini-art" aria-hidden="true"></div>
+      <div class="mini-main">
+        <strong>Urugero rw’amajwi</strong>
+        <span id="mini-state">Byahagaritswe</span>
+        <div class="mini-progress"><i id="mini-fill"></i></div>
+      </div>
+      <button class="icon-btn" type="button" id="mini-play" aria-label="Tangiza cyangwa uhagarike">
+        <svg id="mini-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+      </button>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="nav-item" type="button" data-goto="home" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+        Aha mba
+      </button>
+      <button class="nav-item" type="button" data-goto="library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+        Amabaruwa
+      </button>
+      <button class="nav-item" type="button" data-goto="downloads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v11"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>
+        Ibikururwa
+      </button>
+    </nav>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const demoLetters = [
+    { n: 1, title: 'Urugero rwa Ibaruwa ya 1', sub: 'Icyiciro cy’urugero gusa', audio: true, pdf: true, offline: true, fav: true },
+    { n: 2, title: 'Urugero rwa Ibaruwa ya 2', sub: 'Icyiciro cy’urugero gusa', audio: true, pdf: true, offline: false, fav: false },
+    { n: 3, title: 'Urugero rwa Ibaruwa ya 3', sub: 'Icyiciro cy’urugero gusa', audio: false, pdf: true, offline: false, fav: false },
+    { n: 4, title: 'Urugero rwa Ibaruwa ya 4', sub: 'Icyiciro cy’urugero gusa', audio: true, pdf: true, offline: true, fav: true },
+    { n: 5, title: 'Urugero rwa Ibaruwa ya 5', sub: 'Icyiciro cy’urugero gusa', audio: false, pdf: false, offline: false, fav: false }
+  ];
+
+  const content = document.getElementById('content');
+  const toast = document.getElementById('toast');
+  let toastTimer = null;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2400);
+  }
+
+  function go(screen) {
+    document.querySelectorAll('.screen').forEach(function (s) {
+      s.classList.toggle('active', s.id === 'screen-' + screen);
+    });
+    document.querySelectorAll('.nav-item').forEach(function (b) {
+      const on = b.dataset.goto === screen;
+      if (on) { b.setAttribute('aria-current', 'page'); } else { b.removeAttribute('aria-current'); }
+    });
+    document.querySelectorAll('.screen-switch button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.goto === screen));
+    });
+    content.scrollTop = 0;
+  }
+
+  function heartIcon(filled) {
+    return '<svg viewBox="0 0 24 24" width="19" height="19" fill="' + (filled ? 'currentColor' : 'none') +
+      '" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20.5S4 15.4 4 9.8A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 8 2.8c0 5.6-8 10.7-8 10.7Z"/></svg>';
+  }
+
+  function letterMarkup(item, index) {
+    const pills = [];
+    if (item.pdf) { pills.push('<span class="pill' + (item.offline ? ' off' : '') + '">PDF' + (item.offline ? ' · offline' : '') + '</span>'); }
+    if (item.audio) { pills.push('<span class="pill' + (item.offline ? ' off' : '') + '">Amajwi' + (item.offline ? ' · offline' : '') + '</span>'); }
+    if (!item.pdf && !item.audio) { pills.push('<span class="pill">Inyandiko</span>'); }
+    return '<article class="letter" data-index="' + index + '" tabindex="0" role="button" aria-label="Fungura ' + item.title + '">' +
+      '<div class="num">' + item.n + '</div>' +
+      '<div class="letter-main"><h3>' + item.title + '</h3><p>' + item.sub + '</p>' +
+      '<div class="meta">' + pills.join('') + '</div></div>' +
+      '<button class="fav" type="button" data-fav="' + index + '" aria-pressed="' + item.fav + '" aria-label="Ongeraho mu bikunzwe">' + heartIcon(item.fav) + '</button>' +
+      '</article>';
+  }
+
+  function renderLists(filter, query) {
+    const lib = document.getElementById('library-list');
+    const home = document.getElementById('home-list');
+    const f = filter || 'all';
+    const q = (query || '').trim().toLowerCase();
+    const filtered = demoLetters.filter(function (item) {
+      if (f === 'fav' && !item.fav) { return false; }
+      if (f === 'audio' && !item.audio) { return false; }
+      if (f === 'offline' && !item.offline) { return false; }
+      if (q && String(item.n).indexOf(q) === -1 && item.title.toLowerCase().indexOf(q) === -1) { return false; }
+      return true;
+    });
+    lib.innerHTML = filtered.map(function (item) { return letterMarkup(item, demoLetters.indexOf(item)); }).join('');
+    document.getElementById('library-empty').hidden = filtered.length !== 0;
+    if (!home.dataset.rendered) {
+      home.innerHTML = demoLetters.slice(0, 3).map(function (item) { return letterMarkup(item, demoLetters.indexOf(item)); }).join('');
+      home.dataset.rendered = '1';
+    }
+  }
+
+  document.addEventListener('click', function (event) {
+    const goto = event.target.closest('[data-goto]');
+    if (goto) {
+      event.preventDefault();
+      go(goto.dataset.goto);
+      return;
+    }
+
+    const fav = event.target.closest('[data-fav]');
+    if (fav) {
+      event.stopPropagation();
+      const index = Number(fav.dataset.fav);
+      demoLetters[index].fav = !demoLetters[index].fav;
+      renderLists(currentFilter, document.getElementById('search').value);
+      showToast(demoLetters[index].fav ? 'Yongewe mu bikunzwe.' : 'Yakuwe mu bikunzwe.');
+      return;
+    }
+
+    const letter = event.target.closest('.letter');
+    if (letter) {
+      go('reader');
+      return;
+    }
+
+    const toastBtn = event.target.closest('[data-toast]');
+    if (toastBtn) {
+      showToast(toastBtn.dataset.toast);
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter' && event.key !== ' ') { return; }
+    const target = event.target.closest('[role="button"]');
+    if (target) {
+      event.preventDefault();
+      target.click();
+    }
+  });
+
+  let currentFilter = 'all';
+  document.querySelectorAll('.chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      currentFilter = chip.dataset.filter;
+      document.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c === chip)); });
+      renderLists(currentFilter, document.getElementById('search').value);
+    });
+  });
+
+  document.getElementById('search').addEventListener('input', function (event) {
+    renderLists(currentFilter, event.target.value);
+  });
+
+  document.getElementById('settings').addEventListener('click', function () {
+    showToast('Igenamiterere rizaba mu rurimi rw’Ikinyarwanda.');
+  });
+
+  let readingSize = 18;
+  document.getElementById('font-plus').addEventListener('click', function () {
+    readingSize = Math.min(24, readingSize + 2);
+    document.getElementById('reading-body').style.fontSize = readingSize + 'px';
+  });
+  document.getElementById('font-minus').addEventListener('click', function () {
+    readingSize = Math.max(14, readingSize - 2);
+    document.getElementById('reading-body').style.fontSize = readingSize + 'px';
+  });
+
+  let playing = false;
+  let position = 0;
+  const total = 12 * 60;
+  const playIcon = document.getElementById('play-icon');
+  const miniIcon = document.getElementById('mini-icon');
+  const fill = document.getElementById('seek-fill');
+  const miniFill = document.getElementById('mini-fill');
+  const current = document.getElementById('time-current');
+  const mini = document.getElementById('mini');
+  let timer = null;
+
+  function fmt(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function paint() {
+    const pct = (position / total) * 100;
+    fill.style.width = pct + '%';
+    miniFill.style.width = pct + '%';
+    current.textContent = fmt(position);
+    document.getElementById('seek').setAttribute('aria-valuenow', String(Math.round(pct)));
+  }
+
+  function setPlaying(value) {
+    playing = value;
+    const icon = '<path d="' + (playing ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5.5v13l11-6.5-11-6.5Z') + '"/>';
+    playIcon.innerHTML = icon;
+    miniIcon.innerHTML = icon;
+    document.getElementById('play').setAttribute('aria-label', playing ? 'Hagarika amajwi' : 'Tangiza amajwi');
+    document.getElementById('mini-state').textContent = playing ? 'Birakina · urugero' : 'Byahagaritswe';
+    mini.classList.toggle('show', true);
+    clearInterval(timer);
+    if (playing) {
+      timer = setInterval(function () {
+        position = Math.min(total, position + 3);
+        paint();
+        if (position >= total) { setPlaying(false); }
+      }, 1000);
+    }
+  }
+
+  document.getElementById('play').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('mini-play').addEventListener('click', function (event) {
+    event.stopPropagation();
+    setPlaying(!playing);
+  });
+  mini.addEventListener('click', function () { go('audio'); });
+
+  document.querySelectorAll('[data-seek]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      position = Math.max(0, Math.min(total, position + Number(btn.dataset.seek)));
+      paint();
+      mini.classList.add('show');
+    });
+  });
+
+  document.getElementById('seek').addEventListener('click', function (event) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    position = Math.round(((event.clientX - rect.left) / rect.width) * total);
+    position = Math.max(0, Math.min(total, position));
+    paint();
+    mini.classList.add('show');
+  });
+
+  const speeds = ['1,0×', '1,25×', '1,5×', '2,0×'];
+  let speedIndex = 0;
+  document.getElementById('speed').addEventListener('click', function (event) {
+    speedIndex = (speedIndex + 1) % speeds.length;
+    event.currentTarget.textContent = speeds[speedIndex];
+    event.currentTarget.setAttribute('aria-pressed', String(speedIndex !== 0));
+    showToast('Umuvuduko: ' + speeds[speedIndex] + ' (urugero)');
+  });
+
+  document.getElementById('sleep').addEventListener('click', function (event) {
+    const pressed = event.currentTarget.getAttribute('aria-pressed') === 'true';
+    event.currentTarget.setAttribute('aria-pressed', String(!pressed));
+    showToast(pressed ? 'Guhagarika byakuweho.' : 'Amajwi azahagarara nyuma y’iminota 15.');
+  });
+
+  document.querySelectorAll('.screen-switch button').forEach(function (btn) {
+    btn.addEventListener('click', function () { go(btn.dataset.goto); });
+  });
+
+  renderLists('all', '');
+  paint();
+})();
+</script>
+</body>
+</html>

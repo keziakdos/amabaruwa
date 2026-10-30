@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phase 1 terminée (vérifications sudo clôturées).
+Dernière mise à jour : 2026-10-30 — Phase 2 terminée (audit, design system, prototype).
 
 ---
 
@@ -142,6 +142,83 @@ PocketBase écoutera sur `0.0.0.0:8090` dans le conteneur.
 - `dig A/AAAA/CNAME amabaruwa.rwazap.com`
 - `curl` vers `inzirayakristu.com` et `amabaruwa.rwazap.com`
 - `nginx -t` (sans `sudo`, non concluant)
+
+## Phase 2 — Audit du site et base graphique
+
+### Audit de https://www.inzirayakristu.com (2026-10-30)
+
+- Site WordPress / thème Avada 3.16.2, accessible (HTTP 200, ~83 Ko).
+- API WordPress : `wp-json` et `wp/v2/pages` accessibles ; `wp/v2/posts`
+  retourne une liste vide (le contenu est publié en pages).
+- 22 pages publiées, dont :
+  - `Murisanga` (accueil),
+  - `Nyirikwandika`,
+  - `Amabaruwa` + « ijambo ry'ibanze iriburiro ibikubiyemo » + lettres 1 à 9,
+  - pages Audio (introduction, lettres 1 à 4),
+  - `Bene BUDAMA`, `Kudutumaho`, `murisanga`.
+- Sitemap : PDF `Ibanze-Iriburiro-Ibikubiyemo.pdf` et `Ibaruwa-1.pdf` à
+  `Ibaruwa-9.pdf`.
+- Médiathèque (75 éléments) : PDF des 9 lettres, MP3 de l'introduction et
+  des lettres 1 à 4, **plus des MP3 découpés par chapitres** pour les lettres
+  3 et 4 (`ibaruwa-ya-3-igice-cya-1.mp3`, etc.).
+- **Ambiguïté audio** : la relation exacte entre les MP3 par chapitres et les
+  lettres n'est pas explicite. Aucune correspondance n'a été devinée ;
+  elle sera traitée en phase 5 (inventaire + validation).
+- Structure d'une page lettre : titre `Ibaruwa ya N :`, bloc `KRISTU
+  ARAGARUTSE`, sous-titre `Arivugira ukuri kwe.`, `AMABARUWA YA KRISTU`,
+  lien source `www.christsway.co.za`, texte, puis lien
+  `Soma / Télécharger / Download` vers le PDF.
+- Bannière observée : `Kristu-aragaruste-2-scaled.jpg` (2560 × 1237), texte
+  intégré « Kristu / Aragarutse / Arivugira ukuri kwe mu mabaruwa 9
+  n'inyandiko 16 ».
+- Logo observé : `Logo-Inzirayakristu.jpg` (950 × 390),
+  « BeneBUDAMA / AmabaruwaYaKristu ». Ce n'est pas un logo Amabaruwa isolé :
+  usage comme icône à valider.
+- Favicon observé : `cropped-Logo-Inzirayakristu-1-192x192.jpg`.
+- Typographie du site : Raleway / Open Sans. L'application retient **Lato**
+  (OFL) conformément à `AGENTS.md` ; écart documenté.
+
+### Ressources intégrées au dépôt
+
+- `assets/images/brand/kristu-aragarutse-banner.jpg` (bannière officielle).
+- `assets/images/brand/bene-budama-logo.jpg` (logo officiel observé).
+- `assets/fonts/Lato-Light.ttf`, `Lato-Regular.ttf`, `Lato-Bold.ttf`,
+  `Lato-Black.ttf` et `OFL.txt`.
+- `docs/design-system.md` : palette, contrastes WCAG calculés, typographie,
+  espacements, composants, navigation, adaptation téléphone/tablette,
+  accessibilité, thème sombre, points ouverts.
+- `docs/prototype/index.html` : prototype interactif des 5 écrans
+  (accueil, bibliothèque, lecture, audio, téléchargements), autonome, sans
+  CDN, avec données **explicitement fictives** (badges « URUGERO GUSA »).
+  Aucune citation religieuse inventée.
+
+### Contrastes clés (WCAG calculés)
+
+- `#25364A` sur blanc : 12,32:1 (AAA).
+- `#FFC52E` sur `#25364A` : 7,79:1 (AAA).
+- `#FFFFFF` sur `#FFC52E` : 1,58:1 → interdit.
+- `#9B9B9B` sur blanc : 2,78:1 → interdit pour du texte.
+
+### Vérifications du prototype
+
+Exécutées avec Chromium headless (Playwright), viewport 390 × 844 :
+
+- chargement sans erreur console ni erreur JavaScript ;
+- aucun débordement horizontal (`scrollWidth = clientWidth = 390`) ;
+- navigation entre les 5 écrans fonctionnelle ;
+- recherche locale fonctionnelle ; filtre favoris fonctionnel ;
+- lecteur simulé : lecture/pause, position, avance de 15 s, mini-lecteur ;
+- réglage de taille de lecture fonctionnel (18 → 20 px testé) ;
+- captures des 5 écrans vérifiées visuellement (non versionnées).
+
+### Points ouverts (phase 2)
+
+1. Logo / icône : valider l'usage du logo BeneBUDAMA ou choisir une
+   solution typographique sobre « Amabaruwa ».
+2. Formulation de bannière : conserver la version exacte des pages lettres.
+3. Correspondance audio ↔ lettres : à résoudre en phase 5.
+4. Traductions kinyarwanda de l'interface à faire relire.
+5. Attribution `inzirayakristu.com` à conserver.
 
 ### Plan des phases suivantes
 
