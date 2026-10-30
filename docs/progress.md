@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-30 — Phase 1 terminée (push initial effectué).
+Dernière mise à jour : 2026-10-30 — Phase 1 terminée (vérifications sudo clôturées).
 
 ---
 
@@ -95,16 +95,26 @@ Réseaux Docker existants : `bridge`, `host`, `none`, `coach_default`,
 - `amabaruwa.rwazap.com` → A `148.230.124.5`.
 - Aucun AAAA, aucun CNAME. Conforme.
 
+### Vérifications sudo (exécutées par le propriétaire le 2026-10-30)
+
+- `sudo nginx -t` : **succès**
+  (`syntax is ok` / `test is successful`), avec le seul avertissement
+  préexistant `protocol options redefined for [::]:443` dans
+  `rwaresto.rwazap.com.conf:26`. Aucun autre avertissement.
+- `sudo certbot certificates` : 12 certificats existants
+  (`coach`, `deco`, `hinga`, `n8n`, `news`, `proba`, `resto`, `rwaresto`,
+  `rwazap`, `trade`, `trading`, `webmaster`), tous valides, **aucun
+  certificat `amabaruwa.rwazap.com`**.
+- `sudo ufw status verbose` : `Status: inactive`. Aucune règle pare-feu
+  modifiée.
+- `/etc/letsencrypt/live` : 12 répertoires de domaines + `README`, aucun
+  répertoire Amabaruwa.
+
 ### Blocages identifiés
 
-1. **`sudo` interactif requis** : `sudo -n` retourne
-   `sudo: a password is required`. Les vérifications effectives suivantes sont
-   en attente d'une exécution interactive par le propriétaire :
-   `sudo nginx -t`, `sudo certbot certificates`, `sudo ufw status`.
-   Le mot de passe ne doit jamais transiter par la conversation.
-2. **Adresse e-mail ACME** non connue pour Certbot : à fournir/confirmer en
-   phase 4.
-3. **Environnement Flutter local cassé** : SDK pointant vers
+1. **Adresse e-mail ACME** non connue pour Certbot : à fournir/confirmer en
+   phase 4 (ne pas réutiliser arbitrairement un compte existant).
+2. **Environnement Flutter local cassé** : SDK pointant vers
    `/mnt/c/src/flutter` avec fins de ligne CRLF
    (`shared.sh: $'\r': command not found`) ; `java` absent ; SDK Android
    présent côté Windows (`/mnt/c/Users/DiD/AppData/Local/Android/Sdk`).
