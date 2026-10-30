@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# Amabaruwa - exclusions Git
+# Ne jamais committer de secrets, données de production ni artefacts lourds.
+# ---------------------------------------------------------------------------
+
+# Environnements et secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+secrets/
+!**/secrets/.gitkeep
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+.metadata
+flutter_export_environment.sh
+local.properties
+android/.gradle/
+android/app/.cxx/
+android/key.properties
+android/**/GeneratedPluginRegistrant.java
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/ephemeral/
+ios/Pods/
+macos/Flutter/ephemeral/
+macos/Pods/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+
+# Android / Gradle
+.gradle/
+gradle-wrapper.jar.part
+captures/
+*.apk
+*.aab
+!android/app/release/*.apk.example
+
+# Python / import
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+scripts_migration/.cache/
+scripts_migration/tmp/
+scripts_migration/downloads/
+scripts_migration/reports/*.local.json
+*.part
+*.partial
+*.tmp
+
+# Backend PocketBase
+backend/pb_data/
+backend/pb_data.bak/
+backend/backups/
+pb_data/
+pb_data.bak/
+!backend/pb_data/.gitkeep
+
+# Logs et divers
+*.log
+logs/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
