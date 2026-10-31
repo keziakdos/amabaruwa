@@ -219,7 +219,16 @@ Traductions à faire relire (incertitude signalée) : « Aha mba »,
 
 ---
 
-## 10. Points ouverts
+## 10. Choix techniques d'interface
+
+- PDF : `pdfx` (MIT), rendu natif Android, après vérification de licence.
+- HTML : rendu local maîtrisé depuis `html`, limité aux balises de texte,
+  sans script ni contenu actif.
+- Audio : `just_audio`, `just_audio_background` et `audio_session`.
+- Base locale : Drift/SQLite ; préférences : `shared_preferences`.
+- Aucun secret, compte ou analytics embarqué.
+
+## 11. Points ouverts
 
 1. **Logo / icône d'application** : le seul logo officiel observé est
    « BeneBUDAMA / AmabaruwaYaKristu ». Valider son usage comme icône, ou

@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-31 — Import de production terminé et vérifié.
+Dernière mise à jour : 2026-10-31 — Application Flutter, tests et workflow Android.
 
 ---
 
@@ -419,6 +419,122 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
 - Réimporter les audios 3 et 4 après validation d'une source non ambiguë.
 
 ---
+
+## Phase 6 — Application Flutter
+
+### Versions et environnement
+
+- Flutter **3.47.9** stable (Dart 3.13.7), SDK Linux natif dans `~/.local/flutter`.
+- Java **17** (Temurin 17.0.21).
+- Android SDK 36, Build-Tools 36.1.0, plateforme 36, CMake/NDK installés par
+  Gradle lors du build.
+- `pubspec.lock` versionné.
+
+### Architecture implémentée
+
+- `lib/app/` : application, routeur `go_router`, shell à 3 onglets,
+  mini-lecteur, providers Riverpod.
+- `lib/core/` : configuration `PB_URL`, thème solaire, base Drift
+  (`lettres`, `mots_du_jour`, `download_jobs`), client PocketBase,
+  lecteur audio partagé, service de téléchargement.
+- `lib/features/` : accueil, bibliothèque, détail de lettre, PDF, lecteur,
+  téléchargements, réglages, Mot du jour.
+- `lib/l10n/app_rw.arb` : interface en kinyarwanda, génération `gen_l10n`.
+- Widgets sans accès direct à PocketBase ni aux fichiers.
+
+### Fonctionnalités
+
+- Accueil : bannière officielle, Mot du jour exact ou dernier contenu daté,
+  partage, reprise de lecture.
+- Bibliothèque : recherche locale, filtres favoris/audio/hors ligne,
+  progression, indicateurs PDF/audio téléchargés.
+- Lecture : texte issu des PDF, taille réglable, position persistante,
+  attribution, PDF intégré, partage.
+- Audio : lecteur unique, play/pause, ±15 s, vitesse, minuterie, reprise,
+  mini-lecteur, notification et commandes verrouillage via
+  `just_audio_background`.
+- Téléchargements : `.part`, reprise HTTP Range, vérification taille et
+  SHA-256, renommage final, annulation, nouvelle tentative, suppression,
+  concurrence limitée à 1, états persistés, interruption non marquée
+  terminée.
+- Offline-first : Drift affiché avant le réseau, synchronisation en
+  arrière-plan sans écraser favoris/progression.
+- Mot du jour : sélection Africa/Kigali (UTC+2), repli daté honnête.
+- Android : `com.rwazap.amabaruwa`, minSdk 24, target/compile 36, permissions
+  INTERNET/WAKE_LOCK/FOREGROUND_SERVICE/MEDIA_PLAYBACK, service audio et
+  récepteur médias, `AudioServiceActivity`.
+- Icône typographique sobre « A » solaire, sans prétendre reprendre le logo
+  officiel BeneBUDAMA.
+
+### Choix de bibliothèques
+
+- PDF : **pdfx 2.11.0** (licence MIT), choisi après vérification de licence ;
+  Syncfusion n'a pas été retenu faute de licence gratuite confirmée.
+- HTML : `flutter_html` 3.0.0 s'est révélé incompatible avec Dart 3.13
+  (`qs.matches`). Remplacé par un rendu maison à partir de `html`, limité
+  aux paragraphes, titres, listes et citations, sans script ni contenu actif.
+- Audio : `just_audio` + `just_audio_background` + `audio_session`.
+
+---
+
+## Phase 7 — Tests
+
+### Contrôles automatisés exécutés
+
+- `dart format --output=none --set-exit-if-changed lib test` : OK.
+- `flutter analyze` : **aucun problème**.
+- `flutter test` : **21 tests réussis**, dont :
+  - jour éditorial Africa/Kigali et bascule de minuit ;
+  - sélection exacte/repli du Mot du jour ;
+  - modèles, texte HTML, formats ;
+  - intégrité des fichiers (taille, SHA-256, absent) ;
+  - persistance favoris/progression/position audio ;
+  - reprise d'un téléchargement interrompu ;
+  - premier lancement hors ligne avec texte ×2 sans débordement ;
+  - carte de lettre robuste en texte ×2 sans débordement.
+- `flutter build apk --debug` : APK construit.
+- `flutter build apk --release` : APK construit (66 Mio), signé debug en
+  l'absence de keystore de publication. **Ne pas présenter comme artefact
+  Play Store.**
+
+### Sauvegarde / restauration
+
+- Sauvegarde cohérente créée via l'API PocketBase de production
+  (`amabaruwa_test_20261031t085317z.zip`, 171 Mio).
+- Restauration dans une instance PocketBase **isolée** sur le port 18099.
+- Vérifications : santé `200`, 9 lettres, PDF/audio présents, requêtes Range
+  `206`, puis instance arrêtée et répertoire de test supprimé.
+- Aucune restauration sur la production.
+
+### Tests physiques Android — à exécuter
+
+Aucun appareil ou émulateur Android n'était connecté. Les éléments suivants
+restent **non testés physiquement** :
+
+- installation de l'APK et démarrage ;
+- streaming audio ;
+- lecture d'un fichier local ;
+- notification et commandes sur écran verrouillé ;
+- interruption par appel/écouteurs débranchés ;
+- ouverture et zoom PDF ;
+- mode avion après téléchargement ;
+- relance de l'application et reprise de lecture/écoute ;
+- comportement sur téléphone modeste et grande taille de texte.
+
+---
+
+## Phase 8 — GitHub Actions
+
+- Workflow unique : `.github/workflows/android-build.yml`.
+- PR : format, analyse, tests, sans secrets.
+- Push `main` : mêmes contrôles + APK debug `amabaruwa-debug-apk`.
+- Tag `v*` ou lancement manuel : APK/AAB release signés **si** les secrets
+  `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` existent ; sinon APK debug de
+  repli explicitement nommé.
+- Flutter 3.47.9 et Java 17 épinglés ; cache activé ; concurrence limitée ;
+  artefacts conservés 14 jours ; aucun déploiement VPS automatique.
+- Aucune exécution GitHub Actions n'a encore été observée.
 
 ### Plan des phases suivantes
 
