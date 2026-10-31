@@ -534,7 +534,12 @@ restent **non testés physiquement** :
   repli explicitement nommé.
 - Flutter 3.47.9 et Java 17 épinglés ; cache activé ; concurrence limitée ;
   artefacts conservés 14 jours ; aucun déploiement VPS automatique.
-- Aucune exécution GitHub Actions n'a encore été observée.
+- Exécution réelle du 2026-10-31 sur `main` (commit `f346a29`) :
+  - `Analyse et tests` : **succès** ;
+  - `APK de test (push main)` : **succès** ;
+  - `APK/AAB de publication` : ignoré (pas de tag ni de lancement manuel) ;
+  - run : https://github.com/keziakdos/amabaruwa/actions/runs/41186750736
+  - artefact `amabaruwa-debug-apk` (~103 Mo), conservation 14 jours.
 
 ### Plan des phases suivantes
 
