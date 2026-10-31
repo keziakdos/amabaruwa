@@ -493,9 +493,15 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
   - premier lancement hors ligne avec texte ×2 sans débordement ;
   - carte de lettre robuste en texte ×2 sans débordement.
 - `flutter build apk --debug` : APK construit.
+- Test d'intégration `integration_test/app_test.dart` ajouté (navigation,
+  textes vides) ; **non exécuté**, faute d'appareil connecté.
+- Page de licences ajoutée dans les réglages (`showLicensePage`).
+- `NOTICE.md` ajouté pour l'attribution éditoriale et les licences.
 - `flutter build apk --release` : APK construit (66 Mio), signé debug en
-  l'absence de keystore de publication. **Ne pas présenter comme artefact
-  Play Store.**
+  l'absence de keystore de publication.
+- `flutter build appbundle --release` : AAB construit (65 Mio), signé debug.
+  **Ni l'APK ni l'AAB ne doivent être présentés comme des artefacts Play
+  Store tant que les secrets de signature ne sont pas configurés.**
 
 ### Sauvegarde / restauration
 

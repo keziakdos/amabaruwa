@@ -508,6 +508,12 @@ abstract class AppLocalizations {
   /// **'Inkomoko: inzirayakristu.com'**
   String get attribution;
 
+  /// No description provided for @licenses.
+  ///
+  /// In rw, this message translates to:
+  /// **'Uruhushya n’inkomoko'**
+  String get licenses;
+
   /// No description provided for @fontSize.
   ///
   /// In rw, this message translates to:

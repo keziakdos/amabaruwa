@@ -227,6 +227,9 @@ class AppLocalizationsRw extends AppLocalizations {
   String get attribution => 'Inkomoko: inzirayakristu.com';
 
   @override
+  String get licenses => 'Uruhushya n’inkomoko';
+
+  @override
   String get fontSize => 'Ingano y’inyandiko';
 
   @override

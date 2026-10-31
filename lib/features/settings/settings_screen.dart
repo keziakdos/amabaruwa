@@ -154,6 +154,17 @@ class SettingsScreen extends ConsumerWidget {
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
+                ListTile(
+                  leading: const Icon(Icons.description_outlined),
+                  title: Text(l10n.licenses),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => showLicensePage(
+                    context: context,
+                    applicationName: l10n.appName,
+                    applicationVersion: AppConfig.appVersion,
+                    applicationLegalese: l10n.attribution,
+                  ),
+                ),
               ],
             ),
           ),

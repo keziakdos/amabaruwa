@@ -182,6 +182,12 @@ modèles et texte, intégrité des fichiers téléchargés, persistance
 favoris/progression, reprise d'un téléchargement interrompu et premier
 lancement hors ligne avec grande taille de texte.
 
+Un test d'intégration de navigation est fourni :
+
+```bash
+flutter test integration_test -d <appareil>
+```
+
 Les tests physiques Android (streaming, audio local, écran verrouillé, PDF,
 mode avion) restent à exécuter sur un appareil ; voir
 `docs/progress.md`.
@@ -207,5 +213,7 @@ Téléchargement : onglet **Actions** → exécution → **Artifacts**.
 
 Textes, PDF et audios : **inzirayakristu.com**, utilisés avec l'autorisation
 du propriétaire. Police Lato sous licence OFL (`assets/fonts/OFL.txt`).
+Détails : `NOTICE.md`. Licences des composants consultables dans
+l'application via **Igenamiterere → Uruhushya n'inkomoko**.
 
 Ne pas réutiliser les contenus sans respecter cette attribution.
