@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/app_config.dart';
@@ -130,6 +131,16 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          SectionHeader(title: l10n.menu),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.menu_book_rounded),
+              title: Text(l10n.menu),
+              subtitle: const Text('Nyirikwandika · Bene BUDAMA · Kudutumaho'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/menu'),
             ),
           ),
           SectionHeader(title: l10n.about),

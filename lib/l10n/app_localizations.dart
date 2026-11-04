@@ -778,6 +778,42 @@ abstract class AppLocalizations {
   /// **'Ibikubiyemo'**
   String get menu;
 
+  /// No description provided for @menuIntro.
+  ///
+  /// In rw, this message translates to:
+  /// **'Amakuru ajyanye n’inkomoko y’aya mabaruwa n’itsinda riyitaho.'**
+  String get menuIntro;
+
+  /// No description provided for @menuNyirikwandikaDescription.
+  ///
+  /// In rw, this message translates to:
+  /// **'Inkomoko y’amabaruwa.'**
+  String get menuNyirikwandikaDescription;
+
+  /// No description provided for @menuBeneBudamaDescription.
+  ///
+  /// In rw, this message translates to:
+  /// **'Itsinda riyahinduye mu Kinyarwanda.'**
+  String get menuBeneBudamaDescription;
+
+  /// No description provided for @menuKudutumahoDescription.
+  ///
+  /// In rw, this message translates to:
+  /// **'Twandikire cyangwa utange igitekerezo.'**
+  String get menuKudutumahoDescription;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In rw, this message translates to:
+  /// **'Twandikire'**
+  String get contactUs;
+
+  /// No description provided for @sourcePage.
+  ///
+  /// In rw, this message translates to:
+  /// **'Reba ipaji y’inkomoko'**
+  String get sourcePage;
+
   /// No description provided for @openPdf.
   ///
   /// In rw, this message translates to:

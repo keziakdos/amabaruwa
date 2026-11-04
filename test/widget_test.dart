@@ -9,6 +9,8 @@ import 'package:amabaruwa/features/home/home_screen.dart';
 import 'package:amabaruwa/features/letters/models/daily_word.dart';
 import 'package:amabaruwa/features/letters/models/letter.dart';
 import 'package:amabaruwa/features/letters/widgets/letter_card.dart';
+import 'package:amabaruwa/features/menu/info_page_screen.dart';
+import 'package:amabaruwa/features/menu/menu_screen.dart';
 import 'package:amabaruwa/l10n/app_localizations.dart';
 import 'package:amabaruwa/shared/widgets/state_views.dart';
 
@@ -109,6 +111,49 @@ void main() {
 
     await tester.pumpAndSettle();
     expect(find.text(letter.titre), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('le menu contient les trois pages du site', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('rw'),
+        supportedLocales: [Locale('rw')],
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          KinyarwandaMaterialLocalizationsDelegate(),
+          DefaultWidgetsLocalizations.delegate,
+          KinyarwandaCupertinoLocalizationsDelegate(),
+        ],
+        home: MenuScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nyirikwandika'), findsOneWidget);
+    expect(find.text('Bene BUDAMA'), findsOneWidget);
+    expect(find.text('Kudutumaho'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('la page Kudutumaho affiche le contact exact', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('rw'),
+        supportedLocales: [Locale('rw')],
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          KinyarwandaMaterialLocalizationsDelegate(),
+          DefaultWidgetsLocalizations.delegate,
+          KinyarwandaCupertinoLocalizationsDelegate(),
+        ],
+        home: InfoPageScreen(slug: 'kudutumaho'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('contact@inzirayakristu.com'), findsOneWidget);
+    expect(find.text('Twandikire'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

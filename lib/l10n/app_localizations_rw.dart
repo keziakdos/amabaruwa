@@ -370,6 +370,26 @@ class AppLocalizationsRw extends AppLocalizations {
   String get menu => 'Ibikubiyemo';
 
   @override
+  String get menuIntro =>
+      'Amakuru ajyanye n’inkomoko y’aya mabaruwa n’itsinda riyitaho.';
+
+  @override
+  String get menuNyirikwandikaDescription => 'Inkomoko y’amabaruwa.';
+
+  @override
+  String get menuBeneBudamaDescription => 'Itsinda riyahinduye mu Kinyarwanda.';
+
+  @override
+  String get menuKudutumahoDescription =>
+      'Twandikire cyangwa utange igitekerezo.';
+
+  @override
+  String get contactUs => 'Twandikire';
+
+  @override
+  String get sourcePage => 'Reba ipaji y’inkomoko';
+
+  @override
   String get openPdf => 'Fungura PDF';
 
   @override

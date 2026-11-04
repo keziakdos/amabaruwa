@@ -3,7 +3,7 @@
 Ce document consigne les constats, décisions, commandes exécutées, tests et
 blocages, sans aucun secret. Il est mis à jour après chaque phase.
 
-Dernière mise à jour : 2026-10-31 — Application Flutter, tests et workflow Android.
+Dernière mise à jour : 2026-11-04 — Application Flutter, menu éditorial et workflow Android.
 
 ---
 
@@ -460,6 +460,11 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
 - Offline-first : Drift affiché avant le réseau, synchronisation en
   arrière-plan sans écraser favoris/progression.
 - Mot du jour : sélection Africa/Kigali (UTC+2), repli daté honnête.
+- Menu « Ibikubiyemo » accessible depuis l'en-tête d'accueil et les
+  réglages : **Nyirikwandika**, **Bene BUDAMA**, **Kudutumaho**.
+  Contenus exacts du site, embarqués pour lecture hors ligne, avec lien
+  source. Kudutumaho propose l'adresse `contact@inzirayakristu.com` et un
+  envoi via l'application e-mail du téléphone.
 - Android : `com.rwazap.amabaruwa`, minSdk 24, target/compile 36, permissions
   INTERNET/WAKE_LOCK/FOREGROUND_SERVICE/MEDIA_PLAYBACK, service audio et
   récepteur médias, `AudioServiceActivity`.
@@ -483,7 +488,7 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
 
 - `dart format --output=none --set-exit-if-changed lib test` : OK.
 - `flutter analyze` : **aucun problème**.
-- `flutter test` : **21 tests réussis**, dont :
+- `flutter test` : **23 tests réussis**, dont :
   - jour éditorial Africa/Kigali et bascule de minuit ;
   - sélection exacte/repli du Mot du jour ;
   - modèles, texte HTML, formats ;
@@ -491,7 +496,8 @@ IP non journalisée, proxy de confiance `X-Forwarded-For` / `X-Real-IP`.
   - persistance favoris/progression/position audio ;
   - reprise d'un téléchargement interrompu ;
   - premier lancement hors ligne avec texte ×2 sans débordement ;
-  - carte de lettre robuste en texte ×2 sans débordement.
+  - carte de lettre robuste en texte ×2 sans débordement ;
+  - présence des trois pages du menu et contact exact de Kudutumaho.
 - `flutter build apk --debug` : APK construit.
 - Test d'intégration `integration_test/app_test.dart` ajouté (navigation,
   textes vides) ; **non exécuté**, faute d'appareil connecté.

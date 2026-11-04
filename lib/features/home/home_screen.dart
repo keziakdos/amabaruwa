@@ -42,7 +42,10 @@ class HomeScreen extends ConsumerWidget {
       bottom: false,
       child: Column(
         children: [
-          _Header(onSettings: () => context.push('/settings')),
+          _Header(
+            onMenu: () => context.push('/menu'),
+            onSettings: () => context.push('/settings'),
+          ),
           if (offline) OfflineBanner(message: l10n.offlineMessage),
           Expanded(
             child: RefreshIndicator(
@@ -146,8 +149,9 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onSettings});
+  const _Header({required this.onMenu, required this.onSettings});
 
+  final VoidCallback onMenu;
   final VoidCallback onSettings;
 
   @override
@@ -185,6 +189,16 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
+          IconButton(
+            onPressed: onMenu,
+            tooltip: l10n.menu,
+            icon: const Icon(Icons.menu_rounded),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white.withValues(alpha: 0.55),
+              foregroundColor: AppColors.night,
+            ),
+          ),
+          const SizedBox(width: 6),
           IconButton(
             onPressed: onSettings,
             tooltip: l10n.settings,

@@ -7,6 +7,8 @@ import '../features/home/home_screen.dart';
 import '../features/letters/letter_detail_screen.dart';
 import '../features/letters/letters_screen.dart';
 import '../features/letters/pdf_screen.dart';
+import '../features/menu/info_page_screen.dart';
+import '../features/menu/menu_screen.dart';
 import '../features/player/player_screen.dart';
 import '../features/settings/settings_screen.dart';
 import 'shell.dart';
@@ -72,6 +74,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         parentNavigatorKey: rootKey,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/menu',
+        parentNavigatorKey: rootKey,
+        builder: (context, state) => const MenuScreen(),
+      ),
+      GoRoute(
+        path: '/menu/:slug',
+        parentNavigatorKey: rootKey,
+        builder: (context, state) {
+          return InfoPageScreen(slug: state.pathParameters['slug']!);
+        },
       ),
     ],
   );
